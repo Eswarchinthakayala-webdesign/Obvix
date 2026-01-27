@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Shield, Brain, Cpu, Activity, Lock, Share2 } from 'lucide-react';
+import { Zap, Shield, Brain, Cpu, Activity, Lock, Share2, ScanFace, Hand } from 'lucide-react';
 
 const FEATURE_DATA = [
   {
@@ -20,6 +20,18 @@ const FEATURE_DATA = [
     title: "Neural Engine",
     description: "State-of-the-art COCO-SSD model capable of recognizing 80+ classes.",
     color: "from-purple-400 to-pink-500"
+  },
+  {
+    icon: Hand,
+    title: "Gesture Control",
+    description: "Precise hand tracking with 21 3D landmarks for sign language and AR.",
+    color: "from-blue-400 to-indigo-500"
+  },
+  {
+    icon: ScanFace,
+    title: "Face Analysis",
+    description: "Real-time face detection with 6-point landmark tracking and performance metrics.",
+    color: "from-pink-500 to-rose-500"
   },
   {
     icon: Cpu,

@@ -92,7 +92,7 @@ const Hero = () => {
                         transition={{ duration: 0.8, delay: 0.6 }}
                         className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start w-full sm:w-auto px-4 sm:px-0"
                     >
-                         <Button  className="rounded-full cursor-pointer text-lg h-14 px-8 shadow-[0_0_30px_-5px_var(--color-primary)] hover:shadow-[0_0_50px_-5px_var(--color-primary)] transition-shadow duration-500 bg-primary text-primary-foreground w-full sm:w-auto">
+                         <Button onClick={()=>navigate('/start-detection')} className="rounded-full cursor-pointer text-lg h-14 px-8 shadow-[0_0_30px_-5px_var(--color-primary)] hover:shadow-[0_0_50px_-5px_var(--color-primary)] transition-shadow duration-500 bg-primary text-primary-foreground w-full sm:w-auto">
                             Start Detection
                             <ArrowRight className="ml-2 w-5 h-5" />
                          </Button>

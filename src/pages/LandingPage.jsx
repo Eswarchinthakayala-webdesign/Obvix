@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Github, Menu, X, ArrowRight } from 'lucide-react';
+import React from 'react';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
 import ObjectDetectionDemo from '../components/ObjectDetectionDemo';
-import { useNavigate } from 'react-router-dom';
 
-// Professional SVG Logo Component
+// Professional SVG Logo Component (Local for footer if needed, or import from Header? Better to duplicate or move to separate file if reused. For now, I will keep a local one for footer or just import simple logo)
+// Actually, the footer uses ObvixLogo. I should probably just leave it or define it locally or import it.
+// The Header.jsx has ObvixLogo not exported.
+// I will keep a simple ObvixLogo here for the footer because exporting it from Header isn't standard pattern unless I move it to components/Logo.jsx.
+// I'll keep the local ObvixLogo for now to ensure footer breakage doesn't happen, or just define it.
+
 const ObvixLogo = ({ className = "w-8 h-8" }) => (
   <svg 
     viewBox="0 0 24 24" 
@@ -36,78 +39,10 @@ const ObvixLogo = ({ className = "w-8 h-8" }) => (
 );
 
 const LandingPage = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navigate=useNavigate()
-
-  // Smooth scroll behavior
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      document.documentElement.style.scrollBehavior = 'auto';
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen bg-black text-foreground overflow-hidden selection:bg-primary/20 selection:text-primary">
+    <div className="min-h-screen bg-black text-foreground overflow-hidden selection:bg-primary/20 selection:text-primary pb-20 md:pb-0">
       
-      {/* Professional Header */}
-      <nav 
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ease-in-out border-b ${
-          isScrolled 
-            ? 'bg-black/80 backdrop-blur-xl border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' 
-            : 'bg-transparent border-transparent'
-        }`}
-      >
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          
-          {/* Logo Section */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="relative flex items-center justify-center transition-transform group-hover:scale-105 duration-300">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <ObvixLogo className="w-9 h-9 text-primary relative z-10" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
-              Obvix
-            </span>
-          </div>
-
-          {/* Desktop Navigation & Actions */}
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-6">
-              {/* Add nav links here if needed in future */}
-            </div>
-            
-            <div className="flex items-center gap-4 pl-6 border-l border-white/10">
-              <a 
-                href="https://github.com" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-white transition-colors"
-              >
-                <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
-                  <Github size={18} />
-                </div>
-                <span className="hidden lg:inline">Star on GitHub</span>
-              </a>
-            </div>
-          </div>
-
-
-        </div>
-
-      </nav>
-
-      <main className='bg-black relative'>
+      <main className='bg-black relative pt-16'>
         {/* Background gradient effects could go here */}
         <div className="max-w-7xl mx-auto">
             <Hero />

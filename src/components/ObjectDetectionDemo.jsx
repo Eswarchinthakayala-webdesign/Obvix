@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Loader2, AlertCircle, StopCircle, Scan, Aperture } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
-const ObjectDetectionDemo = () => {
+const ObjectDetectionDemo = ({ onPredictionUpdate, minimal = false }) => {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
@@ -90,6 +90,9 @@ const ObjectDetectionDemo = () => {
                 // Detect objects
                 const predictions = await model.detect(video);
                 setPredictions(predictions);
+                if (onPredictionUpdate) {
+                    onPredictionUpdate(predictions);
+                }
                 renderPredictions(predictions, canvas);
 
                 requestRef.current = requestAnimationFrame(detectFrame);
@@ -184,13 +187,13 @@ const ObjectDetectionDemo = () => {
     };
 
     return (
-        <section className="py-24 relative z-10" id="demo">
-            <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+        <section className={`${minimal ? 'h-full w-full' : 'py-24'} relative z-10`} id="demo">
+            <div className={`${minimal ? 'h-full w-full' : 'container mx-auto px-4 sm:px-6 max-w-6xl'}`}>
                 <motion.div 
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-3xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-center p-1 sm:p-2"
+                    className={`${minimal ? 'h-full rounded-none border-0' : 'rounded-3xl border border-white/10 shadow-2xl p-1 sm:p-2'} overflow-hidden bg-white/5 backdrop-blur-xl relative flex flex-col items-center justify-center`}
                 >
                     
                     {/* Futuristic Header Bar */}
@@ -208,7 +211,7 @@ const ObjectDetectionDemo = () => {
                                     variant="destructive" 
                                     size="sm" 
                                     onClick={stopCamera}
-                                    className="h-7 sm:h-8 gap-1.5 sm:gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/50 text-xs sm:text-sm px-2 sm:px-4"
+                                    className="h-7 sm:h-8 gap-1.5 cursor-pointer sm:gap-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/50 text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     <StopCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                                     STOP
@@ -248,7 +251,7 @@ const ObjectDetectionDemo = () => {
                                         <Button 
                                             size="lg"
                                             onClick={startCamera}
-                                            className="rounded-full px-6 py-4 sm:px-8 sm:py-6 text-base sm:text-lg bg-primary hover:bg-primary/90 shadow-[0_0_20px_-5px_var(--color-primary)] transition-all hover:scale-105 w-full sm:w-auto"
+                                            className="rounded-full cursor-pointer px-6 py-4 sm:px-8 sm:py-6 text-base sm:text-lg bg-primary hover:bg-primary/90 shadow-[0_0_20px_-5px_var(--color-primary)] transition-all hover:scale-105 w-full sm:w-auto"
                                         >
                                             <Scan className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
                                             Initialize Camera

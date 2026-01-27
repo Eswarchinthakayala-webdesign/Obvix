@@ -182,13 +182,13 @@ const DOCS_DATA = [
         content: `
 # Introduction
 
-**LucidLens** is a next-generation object detection interface built for the modern web. It combines the raw power of **TensorFlow.js** with the aesthetic precision of **Shadcn UI**.
+**Obvix** is a next-generation object detection interface built for the modern web. It combines the raw power of **TensorFlow.js** with the aesthetic precision of **Shadcn UI**.
 
 ## The Problem
 Traditional computer vision apps are often clunky, require heavy backend servers, and suffer from network latency.
 
 ## The Solution
-LucidLens moves the "Brain" to the browser.
+Obvix moves the "Brain" to the browser.
 - **Client-Side:** Zero server costs.
 - **Privacy-First:** Images never leave the user's device.
 - **Reactive:** 60FPS detection loops.
@@ -221,10 +221,10 @@ Get up and running in less than 5 minutes.
 
 \`\`\`bash
 # 1. Clone the repo
-git clone https://github.com/your-username/lucid-lens.git
+git clone https://github.com/Eswarchinthakayala-webdesign/Obvix.git
 
 # 2. Enter directory
-cd lucid-lens
+cd Obvix
 
 # 3. Install dependencies (we use pnpm, but npm works)
 npm install
@@ -562,8 +562,8 @@ Located in \`public/manifest.json\`:
 
 \`\`\`json
 {
-  "name": "LucidLens AI",
-  "short_name": "LucidLens",
+  "name": "Obvix AI",
+  "short_name": "Obvix",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -674,7 +674,7 @@ We use an invisible \`aria-live\` region to announce detections.
         content: `
 # Text-to-Speech (TTS)
 
-LucidLens can "speak" what it sees using the Web Speech API.
+Obvix can "speak" what it sees using the Web Speech API.
 
 ## Implementation
 
@@ -820,7 +820,7 @@ export const useWebcam = () => {
         id: "contributing",
         title: "Contributing",
         content: `
-# Contributing to LucidLens
+# Contributing to Obvix
 
 We welcome pull requests!
 
@@ -847,7 +847,7 @@ npm run lint
         content: `
 # MIT License
 
-Copyright (c) 2024 LucidLens Contributors
+Copyright (c) 2024 Obvix Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
