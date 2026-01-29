@@ -42,7 +42,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-black text-foreground overflow-hidden selection:bg-primary/20 selection:text-primary pb-20 md:pb-0">
       
-      <main className='bg-black relative pt-16'>
+      <main className='bg-black relative'>
         {/* Background gradient effects could go here */}
         <div className="max-w-7xl mx-auto">
             <Hero />

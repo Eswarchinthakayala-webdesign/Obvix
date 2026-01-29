@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Github, Menu, X, ArrowRight, Home, ScanFace, Hand, FileText, LayoutDashboard } from 'lucide-react';
+import { Github, Menu, X, ArrowRight, Home, ScanFace, Hand, FileText, LayoutDashboard, PersonStanding, Type, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Professional SVG Logo Component
@@ -82,6 +82,24 @@ const Header = () => {
                 Hand Tracking
               </a>
               <a 
+                href="/pose-detection" 
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              >
+                Pose
+              </a>
+              <a 
+                href="/image-classification" 
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              >
+                Vision
+              </a>
+              <a 
+                href="/text-detection" 
+                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              >
+                Text
+              </a>
+              <a 
                 href="/face-detection" 
                 className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
               >
@@ -121,6 +139,18 @@ const Header = () => {
             <a href="/face-detection" className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-1">
                 <ScanFace className="w-5 h-5" />
                 <span className="text-[10px] font-medium">Face</span>
+            </a>
+            <a href="/pose-detection" className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-1">
+                <PersonStanding className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Pose</span>
+            </a>
+            <a href="/image-classification" className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-1">
+                <ImageIcon className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Vision</span>
+            </a>
+            <a href="/text-detection" className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-1">
+                <Type className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Text</span>
             </a>
             <a href="/hand-tracking" className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-1">
                 <Hand className="w-5 h-5" />

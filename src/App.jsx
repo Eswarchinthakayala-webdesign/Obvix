@@ -10,11 +10,12 @@ import SessionsDashboard from './pages/SessionsDashboard'
 import SessionData from './pages/SessionData'
 import FaceDetectionPage from './pages/FaceDetectionPage'
 import HandTrackingPage from './pages/HandTrackingPage'
-
+import PoseDetectionPage from './pages/PoseDetectionPage'
+import TextDetection from './pages/TextDetection'
+import ImageClassification from './pages/ImageClassification'
 
 const router=createBrowserRouter([
   {
-
     element:<AppLayout/>,
     children:[
       {
@@ -38,6 +39,18 @@ const router=createBrowserRouter([
         element:<HandTrackingPage />
       },
       {
+        path:"/pose-detection",
+        element:<PoseDetectionPage />
+      },
+      {
+        path:"/text-detection",
+        element:<TextDetection />
+      },
+      {
+        path:"/image-classification",
+        element:<ImageClassification />
+      },
+      {
         path:"/dashboard",
         element:<SessionsDashboard/>
       },
@@ -45,11 +58,8 @@ const router=createBrowserRouter([
         path:"/session/:id",
         element:<SessionData/>
       }
-      ]
-
+    ]
   }
-
-
 ])
 
 function App() {

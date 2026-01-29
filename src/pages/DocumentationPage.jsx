@@ -268,6 +268,95 @@ src/
 └── App.jsx
 \`\`\`
 `
+      },
+      {
+        id: "pose-detection-model",
+        title: "Pose Detection",
+        content: `
+# Pose Detection (MoveNet)
+
+Obvix integrates TensorFlow's **MoveNet Lightning** for ultra-fast human pose estimation.
+
+## Capabilities
+- **17 Keypoints**: Detects nose, eyes, ears, shoulders, elbows, wrists, hips, knees, and ankles.
+- **Single Pose**: Optimized to track one person with high precision.
+- **50+ FPS**: Runs smoothly on mobile devices via WebGL.
+
+## Use Cases
+1. **Fitness Tracking**: Analyze squat depth or yoga form.
+2. **Gesture Control**: Use body movements to trigger UI events.
+3. **AR Effects**: Map digital outfits to user skeletons.
+
+## Implementation Details
+We use the \`@tensorflow-models/pose-detection\` package.
+
+\`\`\`javascript
+const detector = await poseDetection.createDetector(
+    poseDetection.SupportedModels.MoveNet, 
+    { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+);
+
+const poses = await detector.estimatePoses(video);
+\`\`\`
+`
+      },
+      {
+         id: "text-recognition",
+         title: "Text Recognition",
+         content: `
+# Text Recognition (OCR)
+
+Obvix includes optical character recognition capabilities powered by **Tesseract.js**.
+
+## Technology
+Unlike our other detectors which use TensorFlow.js, this module uses a WebAssembly port of the famous Tesseract OCR engine.
+
+## Features
+- **Client-Side**: No images are sent to a server. Privacy first.
+- **Language Support**: Default model is English ('eng'), optimized for speed.
+- **Throttle Strategy**: OCR is CPU-intensive. We limit recognition to ~2 FPS to maintain UI responsiveness.
+
+## Usage
+1. Open the Text Detection page.
+2. Allow camera access.
+3. Point at any text (signs, documents, labels).
+4. Detected words are highlighted in yellow.
+
+\`\`\`javascript
+// Simplified implementation
+const worker = await createWorker('eng');
+await worker.recognize(videoElement);
+\`\`\`
+         `
+      },
+      {
+         id: "image-classification",
+         title: "Image Classification",
+         content: `
+# Image Classification (MobileNet)
+
+General-purpose image tagging using **MobileNet V2**.
+
+## Capabilities
+- **1,000+ Classes**: Can identify breeds of dogs, types of cars, common household items, and more.
+- **Scene Recognition**: Distinguishes between environments (e.g., 'seashore', 'library').
+- **Top-3 Inference**: Returns the 3 most likely labels for any given frame.
+
+## Difference from Object Detection
+- **Object Detection (COCO-SSD)**: Finds *where* objects are (Bounding Boxes).
+- **Image Classification (MobileNet)**: Tells you *what* the whole image represents. It does not provide coordinates.
+
+## Implementation
+
+\`\`\`javascript
+import * as mobilenet from '@tensorflow-models/mobilenet';
+
+const model = await mobilenet.load();
+const predictions = await model.classify(videoElement);
+
+// Output: [{ className: 'Egyptian cat', probability: 0.83 }, ...]
+\`\`\`
+         `
       }
     ]
   },
@@ -869,37 +958,7 @@ const SidebarContent = ({
   onNavigate,
   docsData,
 }) => (
-  <aside className="flex flex-col h-full bg-black border-r border-zinc-900">
-    <div className="p-4 sm:p-6 border-b border-zinc-900">
-      <Link to="/" className="flex items-center gap-2 mb-5 text-zinc-500 hover:text-white transition-colors group text-sm">
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-        Back to Home
-      </Link>
-
-      <div className="flex items-center gap-3">
-        {/* Obvix Logo */}
-        <div className="h-10 w-10 flex items-center justify-center">
-             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white">
-                <defs>
-                <linearGradient id="logoGradientDocs" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="currentColor" />
-                    <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
-                </linearGradient>
-                </defs>
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="url(#logoGradientDocs)" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="currentColor" fillOpacity="0.2" />
-                <circle cx="12" cy="12" r="2" fill="currentColor" />
-            </svg>
-        </div>
-
-        <div className="min-w-0">
-          <h1 className="font-bold text-base text-white sm:text-lg tracking-tight truncate">
-            Obvix
-          </h1>
-        
-        </div>
-      </div>
-    </div>
+  <aside className="flex flex-col h-full bg-black border-r pt-10 sm:mt-10 border-zinc-900">
 
     <ScrollArea className="flex-1 px-2 sm:px-4 py-4 sm:py-6">
       <div className="space-y-8 pb-20">
@@ -1010,10 +1069,10 @@ export default function DocumentationPage() {
       )}
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col min-w-0 relative xl:pl-72 bg-black">
+      <main className="flex-1 flex flex-col min-w-0 relative xl:pl-72 pt-10 bg-black">
         <header className="sticky top-0 z-40 h-16 border-b border-zinc-900 flex items-center justify-between px-6 bg-black/80 backdrop-blur-xl">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="xl:hidden -ml-2 text-zinc-400" onClick={() => setIsMobileMenuOpen(true)}>
+            <Button variant="ghost" size="icon" className="xl:hidden cursor-pointer -ml-2 text-zinc-400" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
             <div className="hidden md:flex items-center gap-2 text-sm">

@@ -23,7 +23,9 @@ import {
   Grid,
   Search,
   ScanFace,
-  Hand
+  Hand,
+  PersonStanding,
+  Type
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -447,6 +449,10 @@ const SessionsDashboard = () => {
                                                             ? <ScanFace className="w-3 h-3 text-purple-400" />
                                                             : session.type === 'hand_tracking'
                                                             ? <Hand className="w-3 h-3 text-blue-400" />
+                                                            : session.type === 'pose_detection'
+                                                            ? <PersonStanding className="w-3 h-3 text-green-400" />
+                                                            : session.type === 'text_detection'
+                                                            ? <Type className="w-3 h-3 text-yellow-400" />
                                                             : <Target className="w-3 h-3 text-emerald-400" />
                                                         }
                                                         <span className="font-medium text-white">{formatDate(session.startTime).split(',')[0]}</span>
@@ -459,7 +465,7 @@ const SessionsDashboard = () => {
                                             </td>
                                             <td className="py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <Badge variant="secondary" className={`bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border-0 h-5 text-[10px] ${session.type === 'face_detection' ? 'bg-indigo-500/20 text-indigo-300' : session.type === 'hand_tracking' ? 'bg-blue-500/20 text-blue-300' : ''}`}>
+                                                    <Badge variant="secondary" className={`bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border-0 h-5 text-[10px] ${session.type === 'face_detection' ? 'bg-indigo-500/20 text-indigo-300' : session.type === 'hand_tracking' ? 'bg-blue-500/20 text-blue-300' : session.type === 'pose_detection' ? 'bg-green-500/20 text-green-300' : session.type === 'text_detection' ? 'bg-yellow-500/20 text-yellow-300' : ''}`}>
                                                         {session.detectionCount}
                                                     </Badge>
                                                     <span className="text-xs text-slate-500 truncate max-w-[150px] hidden sm:inline-block opacity-60 group-hover:opacity-100 transition-opacity">
@@ -467,6 +473,10 @@ const SessionsDashboard = () => {
                                                             ? `${session.detectionCount} Faces Scanned`
                                                             : session.type === 'hand_tracking'
                                                             ? `${session.detectionCount} Hands Tracked`
+                                                            : session.type === 'pose_detection'
+                                                            ? `${session.detectionCount} Poses Detected`
+                                                            : session.type === 'text_detection'
+                                                            ? `${session.detectionCount} Words Found`
                                                             : (session.detections ? session.detections.slice(0,2).map(d => d.label).join(', ') + (session.detections.length > 2 ? '...' : '') : '')
                                                         }
                                                     </span>

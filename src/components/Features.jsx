@@ -1,25 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Shield, Brain, Cpu, Activity, Lock, Share2, ScanFace, Hand } from 'lucide-react';
+import { Zap, Shield, Brain, Cpu, Activity, Lock, Share2, ScanFace, Hand, PersonStanding, Type, Image as ImageIcon } from 'lucide-react';
 
 const FEATURE_DATA = [
   {
     icon: Zap,
     title: "Zero Latency",
-    description: "WebGL accelerated inference ensuring real-time performance at 60 FPS.",
-    color: "from-yellow-400 to-orange-500"
+    description: "Real-time facial analysis with 486 3D landmarks relative to the human face.",
+    color: "from-red-400 to-orange-500"
   },
   {
-    icon: Shield,
-    title: "100% Private",
-    description: "No server uploads. All processing happens locally on your device.",
-    color: "from-green-400 to-emerald-500"
-  },
-  {
-    icon: Brain,
-    title: "Neural Engine",
-    description: "State-of-the-art COCO-SSD model capable of recognizing 80+ classes.",
-    color: "from-purple-400 to-pink-500"
+    icon: ScanFace,
+    title: "Face Detection",
+    description: "Real-time facial analysis with 486 3D landmarks relative to the human face.",
+    color: "from-purple-400 to-indigo-500"
   },
   {
     icon: Hand,
@@ -28,16 +22,34 @@ const FEATURE_DATA = [
     color: "from-blue-400 to-indigo-500"
   },
   {
-    icon: ScanFace,
-    title: "Face Analysis",
-    description: "Real-time face detection with 6-point landmark tracking and performance metrics.",
-    color: "from-pink-500 to-rose-500"
+    icon: PersonStanding,
+    title: "Motion Analytics",
+    description: "Full-body pose estimation using MoveNet for fitness and movement analysis.",
+    color: "from-green-400 to-emerald-500"
   },
   {
-    icon: Cpu,
-    title: "Edge Optimized",
-    description: "Efficiently runs on consumer hardware, including mobile phones.",
-    color: "from-blue-400 to-cyan-500"
+    icon: Type,
+    title: "Text Recognition",
+    description: "Instant OCR scanning to extract and digitize text from the physical world.",
+    color: "from-yellow-400 to-amber-500"
+  },
+  {
+    icon: ImageIcon,
+    title: "Image Classification",
+    description: "Real-time scene and object recognition powered by MobileNet.",
+    color: "from-orange-400 to-red-500"
+  },
+  {
+    icon: Activity,
+    title: "Real-time Metrics",
+    description: "Live detection confidence scores and performance monitoring dashboard.",
+    color: "from-teal-400 to-cyan-500"
+  },
+  {
+    icon: Zap,
+    title: "Lightning Fast",
+    description: "Powered by TensorFlow.js with WebGL acceleration for <10ms latency.",
+    color: "from-amber-400 to-orange-500"
   }
 ];
 
