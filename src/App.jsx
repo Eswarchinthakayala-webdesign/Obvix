@@ -13,6 +13,14 @@ import HandTrackingPage from './pages/HandTrackingPage'
 import PoseDetectionPage from './pages/PoseDetectionPage'
 import TextDetection from './pages/TextDetection'
 import ImageClassification from './pages/ImageClassification'
+import TextDetectionDashboard from './pages/TextDetectionDashboard'
+import TextSessionData from './pages/TextSessionData'
+import ImageClassificationDashboard from './pages/ImageClassificationDashboard'
+import ImageClassificationSession from './pages/ImageClassificationSession'
+import FaceLandmark from './pages/FaceLandmark'
+import FaceLandmarkDashboard from './pages/FaceLandmarkDashboard'
+import FaceLandmarkSession from './pages/FaceLandmarkSession'
+import SettingsPage from './pages/SettingsPage'
 
 const router=createBrowserRouter([
   {
@@ -33,6 +41,18 @@ const router=createBrowserRouter([
       {
         path:"/face-detection",
         element:<FaceDetectionPage />
+      },
+      {
+         path:"/face-landmark",
+         element:<FaceLandmark/>
+      },
+      {
+         path:"/face-landmark-dashboard",
+         element:<FaceLandmarkDashboard/>
+      },
+      {
+         path:"/face-landmark-session/:id",
+         element:<FaceLandmarkSession/>
       },
       {
         path:"/hand-tracking",
@@ -57,6 +77,26 @@ const router=createBrowserRouter([
       {
         path:"/session/:id",
         element:<SessionData/>
+      },
+      {
+        path:"/text-dashboard",
+        element:<TextDetectionDashboard/>
+      },
+      {
+        path:"/text-session/:id",
+        element:<TextSessionData/>
+      },
+      {
+        path:"/image-dashboard",
+        element:<ImageClassificationDashboard/>
+      },
+      {
+        path:"/image-session/:id",
+        element:<ImageClassificationSession/>
+      },
+      {
+        path:"/settings",
+        element:<SettingsPage/>
       }
     ]
   }

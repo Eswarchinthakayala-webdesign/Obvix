@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { 
   ArrowLeft, 
+  Upload, 
   Activity, 
-  Maximize2, 
-  Layers,
-  Image as ImageIcon,
+  ImageIcon,
   LayoutDashboard,
-  Zap
+  CheckCircle2,
+  AlertCircle,
+  Zap,
+  Tag,
+  Maximize2,
+  X
 } from 'lucide-react';
 import * as tf from '@tensorflow/tfjs';
 import * as mobilenet from '@tensorflow-models/mobilenet';
@@ -14,210 +18,134 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 const ImageClassification = () => {
     const navigate = useNavigate();
-    const videoRef = useRef(null);
+    const [image, setImage] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [model, setModel] = useState(null);
-    const [isStreaming, setIsStreaming] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isModelLoading, setIsModelLoading] = useState(true);
     const [predictions, setPredictions] = useState([]);
-    const requestRef = useRef();
-    const isProcessingRef = useRef(false);
-    
-    // Session Recording Refs
-    const sessionRef = useRef({
-        id: null,
-        startTime: null,
-        detections: [],
-        detectionCount: 0,
-        type: 'image_classification'
-    });
-    const lastLogRef = useRef(0);
-    const uniqueItemsRef = useRef(new Set());
+    const imageRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    // Session logic
+    const [sessionId] = useState(() => Math.random().toString(36).substr(2, 9));
+    const [sessionStartTime] = useState(() => new Date().toISOString());
 
     useEffect(() => {
-        const loadModel = async () => {
-             try {
-                 await tf.ready();
-                 // Load MobileNet (v2 is better balance of speed/acc)
-                 const net = await mobilenet.load({ version: 2, alpha: 1.0 });
-                 setModel(net);
-                 setIsLoading(false);
-                 toast.success("MobileNet V2 Loaded");
-             } catch (err) {
-                 console.error("Model Error", err);
-                 toast.error("Failed to load Neural Network");
-                 setIsLoading(false);
-             }
-        };
         loadModel();
-
-        return () => {
-             // TFJS cleanup if needed
-        };
     }, []);
 
-    const [facingMode, setFacingMode] = useState('user'); // Default to user for easier testing
-
-    const startCamera = async () => {
-        if (!model) return;
-        setIsLoading(true);
+    const loadModel = async () => {
         try {
-            // Stop existing if any
-            if (videoRef.current && videoRef.current.srcObject) {
-                const tracks = videoRef.current.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-            }
-
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { 
-                    facingMode: facingMode,
-                    width: { ideal: 640 }, 
-                    height: { ideal: 480 }
-                }, 
-                audio: false
-            });
-            
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                // Important for iOS/mobile to play inline
-                videoRef.current.setAttribute('autoplay', '');
-                videoRef.current.setAttribute('muted', '');
-                videoRef.current.setAttribute('playsinline', '');
-                
-                videoRef.current.onloadedmetadata = () => {
-                    videoRef.current.play();
-                    setIsStreaming(true);
-                    setIsLoading(false);
-                    
-                    sessionRef.current = {
-                        id: Math.random().toString(36).substr(2, 9),
-                        startTime: new Date().toISOString(),
-                        detections: [],
-                        detectionCount: 0,
-                        type: 'image_classification'
-                    };
-                    uniqueItemsRef.current.clear();
-                    
-                    classifyFrame();
-                };
-            }
+            console.log("Loading MobileNet...");
+            await tf.ready();
+            const net = await mobilenet.load({ version: 2, alpha: 1.0 });
+            setModel(net);
+            setIsModelLoading(false);
+            console.log("MobileNet loaded");
         } catch (err) {
-            console.error("Camera Error: ", err);
-            toast.error("Unable to access camera. Check permissions.");
-            setIsLoading(false);
+            console.error("Failed to load model", err);
+            toast.error("Failed to load Tensor flow model");
+            setIsModelLoading(false);
         }
     };
 
-    const toggleCamera = () => {
-        const newMode = facingMode === 'user' ? 'environment' : 'user';
-        setFacingMode(newMode);
-        // Restart if already streaming
-        if (isStreaming) {
-            stopCamera(); // Stop first
-            // We need to wait a tick or just rely on the user to start again? 
-            // Better UX: Auto restart. We'll implement a fast restart effect or just let user click start
-            // For simplicity, let's just update state and user clicks start, 
-            // OR recursively call startCamera (requires refactoring due to closure).
-            // Let's just set state and show a toast "Switching camera... click start"
-            toast.info(`Switched to ${newMode === 'user' ? 'Selfie' : 'Back'} camera. Press Start.`);
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setImage(event.target.result);
+                setPredictions([]);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const tracks = videoRef.current.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-            setIsStreaming(false);
-            setPredictions([]);
-            
-            // Save Session
-            if (sessionRef.current && sessionRef.current.detections.length > 0) {
-                const finalSession = {
-                    ...sessionRef.current,
-                    endTime: new Date().toISOString()
-                };
-                
-                const existingSessions = JSON.parse(localStorage.getItem('obvix_sessions') || '[]');
-                localStorage.setItem('obvix_sessions', JSON.stringify([...existingSessions, finalSession]));
-                toast.success("Session saved to Dashboard");
-            }
-            
-            cancelAnimationFrame(requestRef.current);
-        }
-    };
-
-    const [logCount, setLogCount] = useState(0);
-
-    const classifyFrame = async () => {
-        if (!model || !videoRef.current || !isStreaming) return;
-
-        if (isProcessingRef.current) {
-             requestRef.current = requestAnimationFrame(classifyFrame);
-             return;
-        }
-
-        isProcessingRef.current = true;
-
+    const saveSession = (results, imageDataUrl) => {
         try {
-             // Classify
-             const predictions = await model.classify(videoRef.current, 3); // Top 3
-             setPredictions(predictions);
+            const storedSessions = JSON.parse(localStorage.getItem('obvix_sessions') || '[]');
+            const existingSessionIndex = storedSessions.findIndex(s => s.id === sessionId);
+            
+            // For image classification, we might want one session per image or one big session?
+            // User pattern suggests "Start Detection" -> "Session". 
+            // Here we are in a page that acts like "TextDetection". 
+            // Let's treat every classification as an event in a session, OR create a new session per image?
+            // "TextDetection" updated the *same* session (cumulative). 
+            // But if we want to show "Uploaded images" in the dashboard, storing one massive session with many images might be clunky.
+            // Let's do: One "Session" = One Visit to this page. Each image classified is a "detection" record within that session.
+            
+            // However, storing multiple base64 images in one localStorage object is risky.
+            // Let's try to store just this detection as a new item in the array if we want "History of classifications".
+            // Actually, usually "Session" implies a period of time.
+            // Let's stick to the TextDetection pattern: One active session ID for this page mount.
+            
+            const newDetection = {
+                id: Math.random().toString(36).substr(2, 5),
+                timestamp: new Date().toISOString(),
+                label: results[0].className, // Top result as main label
+                score: Math.round(results[0].probability * 100),
+                allPredictions: results,
+                // We'll store the image here. WARNING: Size limits.
+                imageData: imageDataUrl 
+            };
 
-             // Log Logic (Only log high confidence, new items)
-             if (predictions.length > 0) {
-                 const best = predictions[0];
-                 const now = Date.now();
-                 
-                 // Log if > 60% confident (Lowered from 0.8)
-                 if (best.probability > 0.6) {
-                     const isNew = !uniqueItemsRef.current.has(best.className);
-                     
-                     // Log if new item OR 2 seconds passed since last log (Lowered from 5s)
-                     if (isNew || (now - lastLogRef.current > 2000)) {
-                         sessionRef.current.detections.push({
-                             id: Math.random().toString(36).substr(2, 5),
-                             label: best.className,
-                             score: Math.round(best.probability * 100),
-                             timestamp: new Date().toISOString()
-                         });
-                         sessionRef.current.detectionCount = sessionRef.current.detections.length;
-                         
-                         uniqueItemsRef.current.add(best.className);
-                         lastLogRef.current = now;
-                         
-                         // Force re-render of logs
-                         setLogCount(c => c + 1);
-                     }
-                 }
-             }
+            const currentSession = existingSessionIndex >= 0 ? storedSessions[existingSessionIndex] : {
+                id: sessionId,
+                type: 'image_classification',
+                startTime: sessionStartTime,
+                detections: [],
+                detectionCount: 0
+            };
 
-        } catch (err) {
-             console.error(err);
+            const updatedSession = {
+                ...currentSession,
+                endTime: new Date().toISOString(),
+                detections: [newDetection, ...currentSession.detections],
+                detectionCount: currentSession.detectionCount + 1
+            };
+
+            if (existingSessionIndex >= 0) {
+                storedSessions[existingSessionIndex] = updatedSession;
+            } else {
+                storedSessions.push(updatedSession);
+            }
+
+            localStorage.setItem('obvix_sessions', JSON.stringify(storedSessions));
+            toast.success("Result saved to session history");
+
+        } catch (error) {
+            console.error(error);
+            if (error.name === 'QuotaExceededError') {
+                toast.error("Storage full. Image not saved to history.");
+                // Fallback: save without image data
+                // ... logic to save without image ...
+            }
+        }
+    };
+
+    const runClassification = async () => {
+        if (!model || !imageRef.current) return;
+        
+        setIsProcessing(true);
+        try {
+            // Classify the image.
+            const results = await model.classify(imageRef.current);
+            setPredictions(results);
+            
+            if (results && results.length > 0) {
+                saveSession(results, image);
+            }
+
+        } catch (error) {
+            console.error("Classification error:", error);
+            toast.error("Failed to classify image");
         } finally {
-             isProcessingRef.current = false;
-             // Throttle slightly to save battery - 10 FPS is enough for classification
-             setTimeout(() => {
-                 requestRef.current = requestAnimationFrame(classifyFrame);
-             }, 100);
+            setIsProcessing(false);
         }
-    };
-
-    useEffect(() => {
-        return () => {
-            cancelAnimationFrame(requestRef.current);
-            stopCamera();
-        };
-    }, []);
-
-    const toggleFullscreen = () => {
-         if (!document.fullscreenElement) {
-             videoRef.current?.parentElement?.requestFullscreen().catch(console.error);
-         } else {
-             document.exitFullscreen();
-         }
     };
 
     return (
@@ -237,15 +165,11 @@ const ImageClassification = () => {
                         <Button 
                             variant="ghost" 
                             className="text-sm font-medium cursor-pointer text-slate-300 hover:text-white hover:bg-white/5"
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate('/image-dashboard')}
                         >
                             <LayoutDashboard className="w-4 h-4" />
-                            <span className='text-white  hidden sm:black'> View Dashboard</span>
+                            <span className='text-white hidden sm:block ml-2'>Dashboard</span>
                         </Button>
-                         <div className="h-4 w-px bg-white/10 mx-2" />
-                         <Badge variant="outline" className="bg-white/5 border-white/10 text-slate-300 font-mono hidden sm:flex">
-                            {isLoading ? 'INIT...' : (isStreaming ? 'ACTIVE' : 'READY')}
-                         </Badge>
                      </div>
                 </div>
             </nav>
@@ -253,129 +177,135 @@ const ImageClassification = () => {
             <main className="container mx-auto px-4 pt-24 pb-12">
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
                      
-                     {/* Left Column: Camera Feed */}
-                     <div className="lg:col-span-2 h-100 sm:h-150 flex flex-col gap-4">
-                         <div className="relative flex-1 bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl group flex items-center justify-center">
-                              <video 
-                                 ref={videoRef}
-                                 className="absolute inset-0 w-full h-full object-cover" 
-                                 playsInline 
-                                 muted
-                              />
-
-                              {/* Prediction Overlay HUD */}
-                              {isStreaming && predictions.length > 0 && (
-                                  <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-2 z-20">
-                                      {predictions.map((p, i) => (
-                                          <div key={i} className="bg-black/80 backdrop-blur-md rounded-xl p-3 border border-white/10 flex items-center gap-4">
-                                              <div className="w-12 text-right font-bold text-orange-400 font-mono">
-                                                  {(p.probability * 100).toFixed(0)}%
-                                              </div>
-                                              <div className="flex-1">
-                                                  <div className="flex justify-between text-white text-sm font-medium mb-1 uppercase tracking-wide">
-                                                      <span>{p.className.split(',')[0]}</span>
-                                                  </div>
-                                                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                                                      <div 
-                                                        className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-300 ease-out"
-                                                        style={{ width: `${p.probability * 100}%` }}
-                                                      />
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      ))}
-                                  </div>
-                              )}
-
-                              {!isStreaming && (
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/80 backdrop-blur-sm z-10 p-6 text-center">
-                                       <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-orange-500/30">
-                                           <ImageIcon className="w-8 h-8 text-orange-500" />
+                     {/* Left Column: Image Area */}
+                     <div className="lg:col-span-2 h-full flex flex-col gap-4">
+                         <div className="relative flex-1 bg-zinc-900/50 rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex items-center justify-center p-4">
+                               {image ? (
+                                   <div className="relative w-full h-full flex items-center justify-center group">
+                                       <img 
+                                            ref={imageRef}
+                                            src={image} 
+                                            alt="Upload" 
+                                            className="max-w-full max-h-full object-contain rounded-lg shadow-lg" 
+                                            crossOrigin="anonymous"
+                                       />
+                                       
+                                       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                           <Button 
+                                              size="icon" 
+                                              variant="destructive" 
+                                              className="rounded-full shadow-lg"
+                                              onClick={() => {
+                                                  setImage(null);
+                                                  setPredictions([]);
+                                                  if(fileInputRef.current) fileInputRef.current.value = '';
+                                              }}
+                                            >
+                                               <X className="w-4 h-4" />
+                                            </Button>
                                        </div>
-                                       <h2 className="text-2xl font-bold text-white mb-2">Image Classification</h2>
-                                       <p className="text-slate-400 max-w-md mb-8">
-                                           Real-time scene analysis using MobileNet V2. Identify over 1,000 types of objects and scenes instantaneously.
+                                   </div>
+                               ) : (
+                                   <div className="text-center p-12">
+                                       <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                                           <Upload className="w-10 h-10 text-slate-400" />
+                                       </div>
+                                       <h3 className="text-xl font-medium text-white mb-2">Upload Image</h3>
+                                       <p className="text-slate-400 mb-8 max-w-sm mx-auto">
+                                           Upload an image (JPG, PNG) to identify objects and scenes using MobileNet V2.
                                        </p>
                                        <Button 
-                                          size="lg" 
-                                          className="rounded-full bg-orange-600 hover:bg-orange-700 text-white px-8 font-medium shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all hover:scale-105"
-                                          onClick={startCamera}
-                                          disabled={isLoading || !model}
+                                           onClick={() => fileInputRef.current?.click()}
+                                           disabled={isModelLoading}
+                                           className="bg-orange-500 hover:bg-orange-600 text-black font-semibold rounded-full px-8"
                                        >
-                                          {isLoading ? 'Loading Model...' : 'Start Vision'}
+                                           {isModelLoading ? 'Loading Model...' : 'Select Image'}
                                        </Button>
-                                  </div>
-                              )}
-                              
-                              {isStreaming && (
-                                  <div className="absolute top-4 right-4 z-20">
-                                      <div className="flex gap-2">
-                                          <Button 
-                                            variant="secondary" 
-                                            size="icon" 
-                                            className="rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/10"
-                                            onClick={toggleCamera}
-                                            title="Switch Camera"
-                                          >
-                                            <Zap className="w-4 h-4" /> {/* Or CameraFlip icon if available, using Zap as placeholder or refresh */}
-                                          </Button>
-                                          <Button 
-                                            variant="secondary" 
-                                            size="icon" 
-                                            className="rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/10"
-                                            onClick={toggleFullscreen}
-                                          >
-                                            <Maximize2 className="w-4 h-4" />
-                                          </Button>
-                                          <Button 
-                                            variant="destructive" 
-                                            className="rounded-full px-6 font-medium shadow-lg hover:bg-red-600"
-                                            onClick={stopCamera}
-                                          >
-                                            Stop
-                                          </Button>
+                                   </div>
+                               )}
+                               <input 
+                                   type="file" 
+                                   ref={fileInputRef} 
+                                   onChange={handleFileUpload} 
+                                   accept="image/*" 
+                                   className="hidden" 
+                               />
+                         </div>
+
+                         {/* Controls */}
+                         <div className="bg-zinc-900/50 border border-white/10 rounded-xl p-4 flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                  <div className="flex flex-col">
+                                      <span className="text-xs text-slate-400 uppercase tracking-wider font-bold">Status</span>
+                                      <div className="flex items-center gap-2">
+                                          {isProcessing && <Activity className="w-4 h-4 text-orange-400 animate-spin" />}
+                                          {!isProcessing && predictions.length > 0 && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                                          {!isProcessing && predictions.length === 0 && <div className="w-2 h-2 rounded-full bg-slate-500" />}
+                                          
+                                          <span className="text-sm font-mono text-white">
+                                              {isModelLoading ? 'Loading Model...' : isProcessing ? 'Analyzing...' : predictions.length > 0 ? 'Analysis Complete' : 'Ready'}
+                                          </span>
                                       </div>
                                   </div>
-                              )}
+                              </div>
+                              
+                              <div className="flex gap-2">
+                                  <Button 
+                                    onClick={runClassification} 
+                                    disabled={!image || isProcessing || isModelLoading}
+                                    className="bg-orange-500 hover:bg-orange-600 text-black font-bold"
+                                  >
+                                    <Zap className="w-4 h-4 mr-2" />
+                                    Identify
+                                  </Button>
+                              </div>
                          </div>
                      </div>
 
-                     {/* Right Column: Live Session Log */}
+                     {/* Right Column: Results Log */}
                      <div className="lg:col-span-1 bg-zinc-900/30 border border-white/10 rounded-2xl flex flex-col overflow-hidden backdrop-blur-xl">
                          <div className="p-4 border-b border-white/5 bg-black/20 flex items-center justify-between">
                              <h3 className="font-bold text-white flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-orange-400" /> Insight Log
+                                <Tag className="w-4 h-4 text-orange-400" /> Predictions
                              </h3>
                              <Badge variant="secondary" className="bg-orange-500/10 text-orange-400 text-[10px]">
-                                {sessionRef.current.detectionCount} Items
+                                {predictions.length} Found
                              </Badge>
                          </div>
-                         <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                             {sessionRef.current.detections.length === 0 ? (
+                         
+                         <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                             {predictions.length === 0 ? (
                                  <div className="h-full flex flex-col items-center justify-center text-slate-500 text-sm opacity-50">
-                                     <Zap className="w-12 h-12 mb-2" />
-                                     <p>Scan your surroundings...</p>
+                                     <ImageIcon className="w-12 h-12 mb-2" />
+                                     <p>Upload & Identify to see results</p>
                                  </div>
                              ) : (
-                                 [...sessionRef.current.detections].reverse().map((det, i) => (
-                                     <div key={i} className="bg-white/5 border border-white/5 rounded-lg p-3 flex items-center justify-between animate-in fade-in slide-in-from-right-4 duration-300">
-                                         <div className="flex items-center gap-3 overflow-hidden">
-                                             <div className="w-8 h-8 rounded-full bg-orange-500/20 flex flex-shrink-0 items-center justify-center text-orange-400">
-                                                 <ImageIcon size={16} />
-                                             </div>
-                                             <div className="min-w-0">
-                                                 <div className="text-sm font-medium text-white truncate capitalize">{det.label.split(',')[0]}</div>
-                                                 <div className="text-[10px] text-slate-500 font-mono">
-                                                     {new Date(det.timestamp).toLocaleTimeString()}
-                                                 </div>
-                                             </div>
+                                 <div className="space-y-3">
+                                     {predictions.map((p, i) => (
+                                         <div key={i} className="bg-white/5 p-4 rounded-xl border border-white/5 active:scale-[0.98] transition-transform">
+                                              <div className="flex justify-between items-start mb-2">
+                                                  <span className="text-white font-bold capitalize text-lg">{p.className.split(',')[0]}</span>
+                                                  <Badge className="bg-orange-500 text-black hover:bg-orange-600">
+                                                      {(p.probability * 100).toFixed(1)}%
+                                                  </Badge>
+                                              </div>
+                                              
+                                              {/* Confidence Bar */}
+                                              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
+                                                  <div 
+                                                    className="h-full bg-gradient-to-r from-orange-500 to-yellow-500" 
+                                                    style={{ width: `${p.probability * 100}%` }}
+                                                  />
+                                              </div>
+                                              
+                                              {p.className.includes(',') && (
+                                                  <p className="text-xs text-slate-500 mt-2">
+                                                      Also known as: {p.className.split(',').slice(1).join(', ')}
+                                                  </p>
+                                              )}
                                          </div>
-                                         <div className="text-right flex-shrink-0 pl-2">
-                                             <div className="text-xs font-bold text-orange-300">{det.score}%</div>
-                                             <div className="text-[10px] text-slate-500">Conf</div>
-                                         </div>
-                                     </div>
-                                 ))
+                                     ))}
+                                 </div>
                              )}
                          </div>
                      </div>

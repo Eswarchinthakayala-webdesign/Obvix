@@ -164,20 +164,6 @@ const StartDetectionPage = () => {
                   </span>
                   <span className="text-xs font-mono text-emerald-400 font-bold">SYSTEM ACTIVE</span>
              </div>
-
-            <div className="flex items-center gap-4 pl-6 border-l border-white/10">
-              <a 
-                href="https://github.com" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-white transition-colors"
-                title="Star on GitHub"
-              >
-                <div className="p-2 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
-                  <Github size={18} />
-                </div>
-              </a>
-            </div>
           </div>
 
         </div>

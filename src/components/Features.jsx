@@ -12,8 +12,14 @@ const FEATURE_DATA = [
   {
     icon: ScanFace,
     title: "Face Detection",
-    description: "Real-time facial analysis with 486 3D landmarks relative to the human face.",
+    description: "Real-time face tracking and counting with high-performance bounding boxes.",
     color: "from-purple-400 to-indigo-500"
+  },
+  {
+    icon: ScanFace,
+    title: "Face Landmarks",
+    description: "Detailed 468-point 3D face mesh with interactive dashboard for historic analysis.",
+    color: "from-pink-400 to-rose-500"
   },
   {
     icon: Hand,
@@ -45,12 +51,7 @@ const FEATURE_DATA = [
     description: "Live detection confidence scores and performance monitoring dashboard.",
     color: "from-teal-400 to-cyan-500"
   },
-  {
-    icon: Zap,
-    title: "Lightning Fast",
-    description: "Powered by TensorFlow.js with WebGL acceleration for <10ms latency.",
-    color: "from-amber-400 to-orange-500"
-  }
+
 ];
 
 const Features = () => {

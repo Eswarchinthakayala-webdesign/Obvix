@@ -301,6 +301,41 @@ const poses = await detector.estimatePoses(video);
 `
       },
       {
+        id: "face-landmarks-model",
+        title: "Face Landmarks",
+        content: `
+# Face Landmarks (MediaPipe)
+
+Obvix integrates the **MediaPipe Face Mesh** model via TensorFlow.js for high-fidelity facial analysis.
+
+## Capabilities
+- **468 3D Landmarks**: Maps the detailed geometry of the face (eyes, lips, nose, jawline).
+- **Refined Attention**: Includes iris tracking for gaze estimation.
+- **Analytics Dashboard**: Visualize historic scans and confidence trends over time.
+- **Robustness**: Works well even with partial occlusions and varying lighting conditions.
+
+## Use Cases
+1. **Face Filters**: Apply AR masks or makeup.
+2. **Emotion Analysis**: Detect subtle micro-expressions (smile, frown, surprise).
+3. **Attention Tracking**: Monitor where the user is looking.
+
+## Implementation Details
+We use the \`@tensorflow-models/face-landmarks-detection\` package.
+
+\`\`\`javascript
+const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
+const detector = await faceLandmarksDetection.createDetector(model, {
+  runtime: 'tfjs',
+  refineLandmarks: true,
+  maxFaces: 1
+});
+
+const faces = await detector.estimateFaces(video);
+// faces[0].keypoints -> Array of {x, y, z, name}
+\`\`\`
+`
+      },
+      {
          id: "text-recognition",
          title: "Text Recognition",
          content: `
@@ -1099,7 +1134,7 @@ export default function DocumentationPage() {
 
         <ScrollArea ref={contentRef} className="flex-1">
            <div className="max-w-[1600px] mx-auto flex min-h-[calc(100vh-4rem)]">
-              <div className="flex-1 min-w-0 p-8 lg:p-12 lg:pr-16">
+              <div className="flex-1 min-w-0 p-8 pb-20 lg:p-12 lg:pr-16">
                  <motion.div
                     key={activeDocId}
                     initial={{ opacity: 0, y: 10 }}
@@ -1232,16 +1267,16 @@ export default function DocumentationPage() {
                     
                     <div className="mt-20 pt-10 border-t border-zinc-900 flex justify-between gap-6">
                         {prevDoc && (
-                            <Button variant="outline" onClick={() => setActiveDocId(prevDoc.id)} className="flex-1 sm:flex-none h-auto py-4 px-6 flex-col items-start gap-1.5 border-zinc-800 bg-black hover:bg-zinc-900 transition-all group">
+                            <Button variant="outline" onClick={() => setActiveDocId(prevDoc.id)} className="flex-1 sm:flex-none cursor-pointer h-auto py-4 px-6 flex-col items-start gap-1.5 border-zinc-800 bg-black hover:bg-zinc-900 transition-all group">
                                 <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-zinc-400"><ArrowLeft className="w-3 h-3" /> Previous</span>
-                                <span className="text-base font-medium text-zinc-200 group-hover:text-white">{prevDoc.title}</span>
+                                <span className="text-base hidden sm:block font-medium text-zinc-200 group-hover:text-white">{prevDoc.title}</span>
                             </Button>
                         )}
                         <div className="flex-1 sm:flex-none" />
                         {nextDoc && (
-                            <Button variant="outline" onClick={() => setActiveDocId(nextDoc.id)} className="flex-1 sm:flex-none h-auto py-4 px-6 flex-col items-end gap-1.5 border-zinc-800 bg-black hover:bg-zinc-900 transition-all group">
+                            <Button variant="outline" onClick={() => setActiveDocId(nextDoc.id)} className="flex-1 cursor-pointer sm:flex-none h-auto py-4 px-6 flex-col items-end gap-1.5 border-zinc-800 bg-black hover:bg-zinc-900 transition-all group">
                                 <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-zinc-500 group-hover:text-zinc-400">Next <ChevronRight className="w-3 h-3" /></span>
-                                <span className="text-base font-medium text-zinc-200 group-hover:text-white">{nextDoc.title}</span>
+                                <span className="text-base hidden sm:block font-medium text-zinc-200 group-hover:text-white">{nextDoc.title}</span>
                             </Button>
                         )}
                     </div>

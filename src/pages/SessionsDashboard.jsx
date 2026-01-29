@@ -176,22 +176,22 @@ const SessionsDashboard = () => {
       {/* Header */}
       <nav className="sticky top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-           <div className="flex items-center gap-4">
-               <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                    <div className="relative flex items-center justify-center transition-transform group-hover:scale-105 duration-300">
-                        <ObvixLogo className="w-8 h-8 text-primary" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-lg font-bold tracking-tight text-white leading-none">Obvix</span>
-                        <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Analytics</span>
-                    </div>
-                </div>
-           </div>
+           <div className="flex items-center ">
+                        <Button variant="ghost" size="icon" onClick={() => navigate('/start-detection')} className="hover:bg-white/10 text-white rounded-full">
+                            <ArrowLeft className="w-5 h-5" />
+                        </Button>
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                             <div className="relative flex items-center justify-center transition-transform group-hover:scale-105 duration-300">
+                                 <ObvixLogo className="w-8 h-8 text-primary" />
+                             </div>
+                             <span className="text-lg font-bold tracking-tight text-white leading-none hidden sm:block">Obvix</span>
+                         </div>
+                   </div>
            
            <div className="flex items-center gap-3">
-              <Button onClick={() => navigate('/start-detection')} className="hidden sm:flex rounded-full bg-black hover:bg-black/80 border border-white/20 cursor-pointer text-white transition-all hover:scale-105">
-                 <Target className="w-4 h-4 mr-2" />
-                 New Session
+              <Button onClick={() => navigate('/start-detection')} className="flex rounded-full bg-black hover:bg-black/80 border border-white/20 cursor-pointer text-white transition-all hover:scale-105">
+                 <Target className="w-4 h-4" />
+                 <span className='hidden sm:block'> New Session</span>
               </Button>
            </div>
         </div>
@@ -447,6 +447,8 @@ const SessionsDashboard = () => {
                                                     <div className="flex items-center gap-2">
                                                         {session.type === 'face_detection' 
                                                             ? <ScanFace className="w-3 h-3 text-purple-400" />
+                                                            : session.type === 'face_landmark'
+                                                            ? <ScanFace className="w-3 h-3 text-pink-400" />
                                                             : session.type === 'hand_tracking'
                                                             ? <Hand className="w-3 h-3 text-blue-400" />
                                                             : session.type === 'pose_detection'
@@ -465,12 +467,14 @@ const SessionsDashboard = () => {
                                             </td>
                                             <td className="py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <Badge variant="secondary" className={`bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border-0 h-5 text-[10px] ${session.type === 'face_detection' ? 'bg-indigo-500/20 text-indigo-300' : session.type === 'hand_tracking' ? 'bg-blue-500/20 text-blue-300' : session.type === 'pose_detection' ? 'bg-green-500/20 text-green-300' : session.type === 'text_detection' ? 'bg-yellow-500/20 text-yellow-300' : ''}`}>
+                                                    <Badge variant="secondary" className={`bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border-0 h-5 text-[10px] ${session.type === 'face_detection' ? 'bg-indigo-500/20 text-indigo-300' : session.type === 'face_landmark' ? 'bg-pink-500/20 text-pink-300' : session.type === 'hand_tracking' ? 'bg-blue-500/20 text-blue-300' : session.type === 'pose_detection' ? 'bg-green-500/20 text-green-300' : session.type === 'text_detection' ? 'bg-yellow-500/20 text-yellow-300' : ''}`}>
                                                         {session.detectionCount}
                                                     </Badge>
                                                     <span className="text-xs text-slate-500 truncate max-w-[150px] hidden sm:inline-block opacity-60 group-hover:opacity-100 transition-opacity">
-                                                        {session.type === 'face_detection' 
+                                                            {session.type === 'face_detection' 
                                                             ? `${session.detectionCount} Faces Scanned`
+                                                            : session.type === 'face_landmark'
+                                                            ? `${session.detectionCount} Mesh Updates`
                                                             : session.type === 'hand_tracking'
                                                             ? `${session.detectionCount} Hands Tracked`
                                                             : session.type === 'pose_detection'
