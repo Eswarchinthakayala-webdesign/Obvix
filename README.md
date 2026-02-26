@@ -11,7 +11,6 @@
 > [!IMPORTANT]
 > **Privacy-First Architecture**: All processing happens entirely client-side. Your camera stream never leaves your device, ensuring total privacy and low-latency interaction.
 
-[Explore Documentation](/docs) | [Get Started](/start-detection) | [View Dashboard](/dashboard)
 
 
 ---
